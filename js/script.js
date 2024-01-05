@@ -302,47 +302,121 @@ window.addEventListener('DOMContentLoaded', () => {
     const currentSlide = document.querySelector('#current'),
           totalSlide = document.querySelector('#total'),
           sliderWrapper = document.querySelector('.offer__slider-wrapper'),
-          slides = document.querySelectorAll('.offer__slide'),
+          slides = sliderWrapper.querySelectorAll('.offer__slide'),
           slideNext = document.querySelector('.offer__slider-next'),
-          slidePrev = document.querySelector('.offer__slider-prev');
-    let indexSlide = 1;
+          slidePrev = document.querySelector('.offer__slider-prev'),
+          slidesField = sliderWrapper.querySelector('.offer__slider-inner'),
+          widthSlider = window.getComputedStyle(sliderWrapper).width;
 
-    showSlide(indexSlide);
+    let indexSlide = 1;
+    let offset = 0;
 
     if(slides.length < 10){
         totalSlide.textContent =  `0${slides.length}`;
+        currentSlide.textContent = `0${indexSlide}`;
     }else{
         totalSlide.textContent = slides.length;
+        currentSlide.textContent = indexSlide;
     }
+    
 
-    function showSlide(n){
-        if (n > slides.length){
-           indexSlide = 1;
-        }else if (n < 1){
-            indexSlide = slides.length;
+    // 2 Вариант
+
+    slidesField.style.cssText = `
+        width: ${100 * slides.length}%;
+        display: flex;
+        transition: 0.5s all;
+    `
+    sliderWrapper.style.overflow = 'hidden';
+
+    slides.forEach(slide => {
+        slide.style.width = widthSlider;
+    });
+
+    slideNext.addEventListener('click', () => {
+        if (offset == +widthSlider.slice(0, widthSlider.length - 2) * (slides.length - 1)){
+            offset = 0;
+        }else{
+            offset += +widthSlider.slice(0, widthSlider.length - 2);
         }
 
-        slides.forEach(slide => slide.classList.add('hide'));
-        
-        slides[indexSlide - 1].classList.remove('hide');
-        
+        slidesField.style.transform =  `translateX(-${offset}px)`;
+
+        if (indexSlide == slides.length) {
+            indexSlide = 1;
+        } else{
+            indexSlide++;
+        }
+
         if(slides.length < 10){
             currentSlide.textContent = `0${indexSlide}`;
         }else{
             currentSlide.textContent = indexSlide;
         }
-    }
-
-    function plusSlide(n){
-        showSlide( indexSlide += n)
-    }
-
-    slideNext.addEventListener('click', () => {
-        plusSlide(1)
     });
 
     slidePrev.addEventListener('click', () => {
-        plusSlide(-1)
+        if (offset == 0){
+            offset = +widthSlider.slice(0, widthSlider.length - 2) * (slides.length - 1);
+        }else{
+            offset -= +widthSlider.slice(0, widthSlider.length - 2);
+        }
+
+        slidesField.style.transform =  `translateX(-${offset}px)`
+
+        if (indexSlide == 1) {
+            indexSlide = slides.length;
+        } else{
+            indexSlide--;
+        }
+
+        if(slides.length < 10){
+            currentSlide.textContent = `0${indexSlide}`;
+        }else{
+            currentSlide.textContent = indexSlide;
+        }
     });
+
+    // 1 Вариант
+
+    // showSlide(indexSlide);
+
+    // if(slides.length < 10){
+    //     totalSlide.textContent =  `0${slides.length}`;
+    // }else{
+    //     totalSlide.textContent = slides.length;
+    // }
+
+    // function showSlide(n){
+    //     if (n > slides.length){
+    //        indexSlide = 1;
+    //     }else if (n < 1){
+    //         indexSlide = slides.length;
+    //     }
+
+    //     slides.forEach(slide => slide.classList.add('hide'));
+
+    //     slides[indexSlide - 1].classList.remove('hide');
+        
+    //     if(slides.length < 10){
+    //         currentSlide.textContent = `0${indexSlide}`;
+    //     }else{
+    //         currentSlide.textContent = indexSlide;
+    //     }
+    // }
+
+    // function plusSlide(n){
+    //     showSlide( indexSlide += n)
+    // }
+
+    // slideNext.addEventListener('click', () => {
+    //     plusSlide(1)
+    // });
+
+    // slidePrev.addEventListener('click', () => {
+    //     plusSlide(-1)
+    // });
+
+    
     
 });
