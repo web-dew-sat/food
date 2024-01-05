@@ -299,7 +299,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
    // Slider
    
-    const currentSlide = document.querySelector('#current'),
+    const slider = document.querySelector('.offer__slider'),
+          currentSlide = document.querySelector('#current'),
           totalSlide = document.querySelector('#total'),
           sliderWrapper = document.querySelector('.offer__slider-wrapper'),
           slides = sliderWrapper.querySelectorAll('.offer__slide'),
@@ -319,8 +320,23 @@ window.addEventListener('DOMContentLoaded', () => {
         currentSlide.textContent = indexSlide;
     }
     
+    // Функция для номера активного слайда в слайдере
+    function numberSlide(n) {
+        if(slides.length < 10){
+            currentSlide.textContent = `0${n}`;
+        }else{
+            currentSlide.textContent = n;
+        }
+    }
+
+    // Функция toggle класса для dot слайдера
+    function toggleClassDots(item) {
+        item.forEach(dot => dot.classList.remove('dot_active'));
+        item[indexSlide - 1].classList.add('dot_active');
+    }
 
     // 2 Вариант
+
 
     slidesField.style.cssText = `
         width: ${100 * slides.length}%;
@@ -333,7 +349,31 @@ window.addEventListener('DOMContentLoaded', () => {
         slide.style.width = widthSlider;
     });
 
-    slideNext.addEventListener('click', () => {
+    slider.style.position = 'relative';
+    const indicators = document.createElement('ul'),
+    dots = [];
+
+    indicators.classList.add('carousel-indicators');
+    slider.append(indicators);
+
+
+    // Добавление dot в слайдер
+    for( let i = 0; i < slides.length; i++) {
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);
+        dot.classList.add('dot');
+
+        if(i == 0){
+            dot.classList.add('dot_active');
+        }
+
+        indicators.append(dot);
+        dots.push(dot);
+
+    }
+
+    // Переключение на следующий слайд
+    slideNext.addEventListener('click', (e) => {
         if (offset == +widthSlider.slice(0, widthSlider.length - 2) * (slides.length - 1)){
             offset = 0;
         }else{
@@ -348,21 +388,21 @@ window.addEventListener('DOMContentLoaded', () => {
             indexSlide++;
         }
 
-        if(slides.length < 10){
-            currentSlide.textContent = `0${indexSlide}`;
-        }else{
-            currentSlide.textContent = indexSlide;
-        }
+        numberSlide(indexSlide);
+
+        toggleClassDots(dots);
     });
 
-    slidePrev.addEventListener('click', () => {
+
+    // Переключение на предыдущий слайд
+    slidePrev.addEventListener('click', (e) => {
         if (offset == 0){
             offset = +widthSlider.slice(0, widthSlider.length - 2) * (slides.length - 1);
         }else{
             offset -= +widthSlider.slice(0, widthSlider.length - 2);
         }
 
-        slidesField.style.transform =  `translateX(-${offset}px)`
+        slidesField.style.transform =  `translateX(-${offset}px)`;
 
         if (indexSlide == 1) {
             indexSlide = slides.length;
@@ -370,12 +410,27 @@ window.addEventListener('DOMContentLoaded', () => {
             indexSlide--;
         }
 
-        if(slides.length < 10){
-            currentSlide.textContent = `0${indexSlide}`;
-        }else{
-            currentSlide.textContent = indexSlide;
-        }
+        toggleClassDots(dots);
+
     });
+
+    // Событие при клике на dot слайдера
+   dots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+
+            indexSlide = slideTo;
+            offset = +widthSlider.slice(0, widthSlider.length - 2) * (slideTo - 1);
+
+            slidesField.style.transform =  `translateX(-${offset}px)`;
+            toggleClassDots(dots);
+
+            numberSlide(indexSlide);
+
+        });
+   });
+
+   
 
     // 1 Вариант
 
